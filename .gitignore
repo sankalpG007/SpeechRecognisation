@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
+env/
+venv/
+ENV/
+.venv/
+pip-wheel-metadata/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs and temporary
+*.log
+tmp/
+temp/
+
+# Mac/Linux
+*.swp
+
+# pipenv / poetry
+Pipfile.lock
+.poetry/
+
+# Jupyter
+.ipynb_checkpoints/
