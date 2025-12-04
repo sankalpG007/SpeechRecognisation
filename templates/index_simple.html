@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech Recognition - WAV Only</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .alert {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .alert.success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .alert.error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .upload-section {
+            padding: 20px;
+            border: 2px solid #764ba2;
+            border-radius: 10px;
+            background-color: #f8f5ff;
+            margin: 20px 0;
+        }
+        select, input[type="file"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+            width: 100%;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #result {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 Speech Recognition (WAV Files Only)</h1>
+        
+        <div class="alert">
+            <strong>📢 IMPORTANT:</strong> This version only accepts <strong>WAV files</strong>.
+            Use the test file <code>test_audio.wav</code> to test.
+        </div>
+        
+        <div class="upload-section">
+            <h3>📁 Upload WAV File</h3>
+            
+            <label for="language">Select Language:</label>
+            <select id="language">
+                <option value="en-IN">English (India)</option>
+                <option value="en-US">English (US)</option>
+                <option value="en-GB">English (UK)</option>
+                <option value="hi-IN">Hindi</option>
+                <option value="ta-IN">Tamil</option>
+                <option value="te-IN">Telugu</option>
+            </select>
+            
+            <input type="file" id="audioFile" accept=".wav">
+            <button onclick="uploadAudio()">Upload & Transcribe WAV File</button>
+            
+            <p style="margin-top: 15px; font-size: 14px; color: #666;">
+                <a href="https://online-audio-converter.com/" target="_blank">
+                    🔗 Convert other formats to WAV online
+                </a>
+            </p>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div>⏳ Processing... Please wait</div>
+        </div>
+        
+        <div id="result">
+            <h3>📝 Transcription Result:</h3>
+            <div id="transcriptionText">Your transcription will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        async function uploadAudio() {
+            const fileInput = document.getElementById('audioFile');
+            if (!fileInput.files[0]) {
+                alert('Please select a WAV file first');
+                return;
+            }
+            
+            const audioFile = fileInput.files[0];
+            
+            // Check file type
+            if (!audioFile.name.toLowerCase().endsWith('.wav')) {
+                alert('Please select a WAV file. Other formats are not supported.');
+                return;
+            }
+            
+            await sendToServer(audioFile);
+        }
+        
+        async function sendToServer(audioFile) {
+            const language = document.getElementById('language').value;
+            const formData = new FormData();
+            formData.append('audio_data', audioFile);
+            formData.append('language', language);
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('transcriptionText').innerHTML = '<em>Uploading and processing audio... Please wait.</em>';
+            
+            try {
+                const response = await fetch('/recognize', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    document.getElementById('transcriptionText').innerHTML = 
+                        `<div class="alert success">
+                            <strong>✅ Success!</strong><br><br>
+                            ${data.result}
+                        </div>`;
+                } else {
+                    document.getElementById('transcriptionText').innerHTML = 
+                        `<div class="alert error">
+                            <strong>❌ Error:</strong><br><br>
+                            ${data.error || 'Unknown error occurred'}<br><br>
+                            ${data.help || ''}<br>
+                            ${data.suggestion || ''}
+                        </div>`;
+                }
+            } catch (error) {
+                document.getElementById('transcriptionText').innerHTML = 
+                    `<div class="alert error">
+                        <strong>❌ Network Error:</strong><br><br>
+                        ${error.message}
+                    </div>`;
+                console.error('Fetch error:', error);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        // Show file info when selected
+        document.getElementById('audioFile').addEventListener('change', function(e) {
+            if (this.files[0]) {
+                const fileName = this.files[0].name;
+                const fileSize = (this.files[0].size / (1024 * 1024)).toFixed(2);
+                
+                const uploadSection = document.querySelector('.upload-section');
+                let statusDiv = uploadSection.querySelector('.file-status');
+                
+                if (!statusDiv) {
+                    statusDiv = document.createElement('div');
+                    statusDiv.className = 'alert file-status';
+                    uploadSection.appendChild(statusDiv);
+                }
+                
+                statusDiv.innerHTML = `
+                    <strong>File selected:</strong> ${fileName}<br>
+                    <strong>Size:</strong> ${fileSize} MB
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

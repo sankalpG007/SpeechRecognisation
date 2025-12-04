@@ -1,35 +1,24 @@
-# Python
+# Python / env
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-*.env
-env/
 venv/
-ENV/
 .venv/
-pip-wheel-metadata/
-*.egg-info/
+env/
+.env
 
-# OS
+# OS / editors
 .DS_Store
 Thumbs.db
-
-# IDEs
 .vscode/
 .idea/
 
-# Logs and temporary
+# Large / build / binary
+ffmpeg-*/
+ffmpeg-*.tar.xz
+uploads/
 *.log
-tmp/
-temp/
+*.pdf
 
-# Mac/Linux
-*.swp
-
-# pipenv / poetry
-Pipfile.lock
-.poetry/
-
-# Jupyter
-.ipynb_checkpoints/
+# Keys / certs
+*.pem
+openssl.cnf
