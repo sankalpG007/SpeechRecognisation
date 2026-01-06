@@ -1,4 +1,4 @@
-# Python / env
+# Python
 __pycache__/
 *.pyc
 venv/
@@ -6,19 +6,20 @@ venv/
 env/
 .env
 
-# OS / editors
-.DS_Store
-Thumbs.db
+# Editors / OS
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db
 
-# Large / build / binary
+# ffmpeg / big files
 ffmpeg-*/
 ffmpeg-*.tar.xz
+ffmpeg.exe
 uploads/
 *.log
 *.pdf
 
-# Keys / certs
+# Keys - never commit these
 *.pem
 openssl.cnf
